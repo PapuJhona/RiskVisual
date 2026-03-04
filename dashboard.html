@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Seguridad Industrial</title>
+    <!-- El ?v=9999 es para obligar a ver los cambios de estilo nuevos -->
+    <link rel="stylesheet" href="home-style.css?v=9999">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="db-manager.js"></script>
+</head>
+<!-- SEGURIDAD: display: none oculta todo hasta que el JS verifique que tienes permiso -->
+<body style="display: none;">
+
+    <!-- HEADER SUPERIOR (FLOTANTE) -->
+    <header class="dashboard-header">
+        <div class="user-container">
+            <div class="avatar-circle">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <div class="user-info">
+                <span class="u-label">Bienvenido,</span>
+                <span id="user-email-display" class="u-email">Cargando...</span>
+            </div>
+        </div>
+
+        <button onclick="logout()" class="btn-logout">
+            <span>Cerrar Sesión</span>
+            <i class="fa-solid fa-power-off"></i>
+        </button>
+    </header>
+
+    <!-- CONTENIDO CENTRAL -->
+    <div class="hero-container">
+        <div class="content-wrapper">
+            
+            <!-- ZONA DE MARCA (Aquí saldrá el Logo o el Texto Automáticamente) -->
+            <div class="logo-area" id="dynamic-brand-container">
+                <!-- Se llena con JS -->
+            </div>
+
+            <!-- TARJETAS DE MENÚ -->
+            <div class="cards-container">
+                
+                <a href="mapa.html" class="nav-card">
+                    <div class="icon-box">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                    </div>
+                    <h2>Mapa de Riesgos</h2>
+                    <p>Creación y edición de planos con simbología ISO 7010.</p>
+                    <span class="btn-link">Ingresar &rarr;</span>
+                </a>
+
+                <a href="ast.html" class="nav-card secondary">
+                    <div class="icon-box">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                    </div>
+                    <h2>Tablas AST</h2>
+                    <p>Análisis de Seguridad en el Trabajo y gestión de tareas.</p>
+                    <span class="btn-link">Ingresar &rarr;</span>
+                </a>
+                
+                <a href="accidentes.html" class="nav-card">
+                    <div class="icon-box">
+                       <i class="fa-solid fa-notes-medical"></i>
+                    </div>
+                    <h2>Registro de Incidentes</h2>
+                    <p>Reporte, investigación y seguimiento estadístico de accidentes laborales.</p>
+                    <span class="btn-link">Ingresar &rarr;</span>
+               </a>
+
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Gestión de Seguridad Industrial. Todos los derechos reservados.</p>
+    </footer>
+    
+    <!-- LÓGICA DE SEGURIDAD Y CARGA -->
+    <script>
+        // 1. PORTERO DE SEGURIDAD (Anti botón atrás)
+        function verificarAcceso() {
+            const session = JSON.parse(localStorage.getItem('SGS_CURRENT_SESSION'));
+            
+            // Si no hay sesión válida, te saca al login
+            if (!session || session.type !== 'COMPANY_USER') {
+                window.location.replace('index.html'); 
+            } else {
+                // Si hay sesión, muestra la página
+                document.body.style.display = 'flex';
+                cargarDatos(session);
+            }
+        }
+
+        // 2. CARGAR DATOS VISUALES
+        function cargarDatos(session) {
+            // A. Mostrar info de usuario en el header
+            const displaySpan = document.getElementById('user-email-display');
+            if(displaySpan) {
+                displaySpan.innerHTML = `${session.email} <small>${session.role}</small>`;
+            }
+
+            // B. Mostrar Logo o Texto de Empresa
+            const brandData = getCompanyBranding(); // Viene de db-manager.js
+            const container = document.getElementById('dynamic-brand-container');
+
+            if (brandData && container) {
+                container.innerHTML = ''; 
+
+                if (brandData.logo) {
+                    // SI HAY LOGO
+                    const img = document.createElement('img');
+                    img.src = brandData.logo;
+                    img.className = 'corporate-logo-img';
+                    img.alt = brandData.name;
+                    container.appendChild(img);
+                } else {
+                    // SI NO HAY LOGO (TEXTO)
+                    const textBox = document.createElement('div');
+                    textBox.className = 'corporate-text-box';
+                    textBox.innerHTML = `
+                        <h1 class="corp-title">${brandData.name}</h1>
+                        <div class="corp-line"></div>
+                        <span class="corp-subtitle">SISTEMA DE GESTIÓN INTEGRAL</span>
+                    `;
+                    container.appendChild(textBox);
+                }
+            }
+        }
+
+        // Ejecutar verificación al cargar y al volver del historial
+        document.addEventListener('DOMContentLoaded', verificarAcceso);
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) verificarAcceso();
+        });
+    </script>
+
+</body>
+</html>

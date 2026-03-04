@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Seguro - Risk Visual</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="db-manager.js"></script>
+    
+    <style>
+        /* --- ESTILOS GENERALES --- */
+        :root {
+            --brand-blue: #002060;
+            --brand-dark: #001540;
+            --accent: #00d2d3;
+            --text-dark: #0f172a;
+            --text-light: #64748b;
+            --bg-input: #f8fafc;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            overflow: hidden;
+            background-color: #ffffff;
+        }
+
+        /* --- LADO IZQUIERDO (BRANDING) --- */
+        .brand-section {
+            flex: 1.2; 
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 80px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset -10px 0 20px rgba(0,0,0,0.1);
+        }
+
+        /* Elementos decorativos de fondo (Geometría moderna) */
+        .brand-section::before {
+            content: "";
+            position: absolute;
+            top: -10%; left: -10%;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(0, 210, 211, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .brand-section::after {
+            content: "";
+            position: absolute;
+            bottom: -20%; right: -10%;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        .brand-content {
+            position: relative;
+            z-index: 2;
+            max-width: 600px;
+            animation: slideRight 0.8s ease-out;
+        }
+
+        .logo-icon-main {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 20px;
+            filter: drop-shadow(0 4px 6px rgba(0, 210, 211, 0.3));
+        }
+
+        .logo-text {
+            font-size: 4.5rem;
+            font-weight: 800;
+            letter-spacing: -2px;
+            margin-bottom: 5px;
+            line-height: 1;
+            background: linear-gradient(to right, #ffffff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .logo-subtitle {
+            font-size: 1.4rem;
+            font-weight: 400;
+            color: var(--accent);
+            margin-bottom: 35px;
+            letter-spacing: 0.5px;
+        }
+
+        .brand-desc {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.85);
+            border-left: 4px solid var(--accent);
+            padding-left: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px 20px 20px 25px;
+            border-radius: 0 12px 12px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        /* --- LADO DERECHO (LOGIN) --- */
+        .login-section {
+            flex: 0.8;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            position: relative;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 420px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        /* Logo móvil (Oculto en PC) */
+        .mobile-brand {
+            display: none;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .mobile-brand i { color: var(--brand-blue); font-size: 2rem; margin-bottom: 10px; }
+        .mobile-brand h1 { color: var(--brand-dark); font-size: 2rem; margin: 0; font-weight: 800; letter-spacing: -1px; }
+        .mobile-brand p { color: var(--accent); font-weight: 500; font-size: 0.9rem; margin: 5px 0 0 0; }
+
+        .login-header {
+            margin-bottom: 40px;
+            text-align: left;
+        }
+
+        .login-header h2 {
+            color: var(--text-dark);
+            font-size: 2.2rem;
+            margin: 0;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .login-header p {
+            color: var(--text-light);
+            margin-top: 8px;
+            font-size: 1.05rem;
+        }
+
+        /* Inputs Premium */
+        .input-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            transition: color 0.3s;
+            font-size: 1.1rem;
+        }
+
+        /* Iluminar ícono al hacer focus en el input */
+        .input-group:focus-within i {
+            color: var(--brand-blue);
+        }
+
+        input {
+            width: 100%;
+            padding: 16px 16px 16px 50px;
+            background-color: var(--bg-input);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            color: var(--text-dark);
+            transition: all 0.3s;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        input:hover {
+            background-color: #f1f5f9;
+        }
+
+        input:focus {
+            background-color: #ffffff;
+            border-color: var(--brand-blue);
+            outline: none;
+            box-shadow: 0 4px 12px rgba(0, 32, 96, 0.08);
+        }
+
+        /* Botón */
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(to right, var(--brand-blue), #003399);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(0, 32, 96, 0.25);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 32, 96, 0.35);
+        }
+
+        /* Error Box */
+        #error {
+            color: #b91c1c; 
+            background: #fef2f2; 
+            padding: 12px 15px; 
+            border-radius: 8px; 
+            margin-top: 20px; 
+            display: none; 
+            text-align: left; 
+            font-size: 0.95rem; 
+            border-left: 4px solid #ef4444;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* Links y Footer */
+        .super-admin-link {
+            margin-top: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: var(--text-light);
+            font-size: 0.95rem;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .super-admin-link:hover { 
+            color: var(--brand-blue); 
+            background-color: var(--bg-input);
+        }
+
+        .footer-copy {
+            position: absolute;
+            bottom: 25px;
+            text-align: center;
+            width: 100%;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 400;
+        }
+
+        /* Animaciones */
+        @keyframes slideRight { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .brand-section { display: none; } 
+            .login-section { flex: 1; }
+            .mobile-brand { display: block; } /* Mostrar logo en móvil */
+            .login-header h2, .login-header p { text-align: center; }
+        }
+        
+        @media (max-width: 768px) {
+            body { flex-direction: column; overflow-y: auto; } 
+            .login-section { width: 100%; padding: 30px 20px; }
+            .login-wrapper { margin-top: 10px; }
+        }
+        
+    </style>
+</head>
+<body>
+
+    <div class="brand-section">
+        <div class="brand-content">
+            <i class="fa-solid fa-map-location-dot logo-icon-main"></i>
+            <div class="logo-text">Risk Visual</div>
+            <div class="logo-subtitle">Mapeando riesgos, salvando vidas.</div>
+            <p class="brand-desc">
+                Plataforma integral para la gestión de riesgos, control de procesos y seguridad industrial. 
+                Centralice su operación y garantice el cumplimiento normativo en tiempo real.
+            </p>
+        </div>
+    </div>
+
+    <div class="login-section">
+        <div class="login-wrapper">
+            
+            <div class="mobile-brand">
+                <i class="fa-solid fa-map-location-dot"></i>
+                <h1>Risk Visual</h1>
+                <p>Mapeando riesgos, salvando vidas.</p>
+            </div>
+
+            <div class="login-header">
+                <h2>Iniciar Sesión</h2>
+                <p>Ingrese sus credenciales corporativas</p>
+            </div>
+
+            <div class="input-group">
+                <label for="email">Usuario o Correo</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="text" id="email" placeholder="ejemplo@empresa.com">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="pass">Contraseña</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="pass" placeholder="••••••••">
+                </div>
+            </div>
+            
+            <button onclick="doLogin()">
+                Ingresar a la plataforma <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            </button>
+            
+            <div id="error">
+                <i class="fa-solid fa-circle-exclamation"></i> <span id="error-text">Error en las credenciales</span>
+            </div>
+
+            <a href="admin.html" class="super-admin-link">
+                <i class="fa-solid fa-user-shield"></i> Acceso para Administradores
+            </a>
+        </div>
+
+        <div class="footer-copy">
+            &copy; <script>document.write(new Date().getFullYear())</script> Risk Visual. Todos los derechos reservados.
+        </div>
+    </div>
+
+    <script>
+        // Si ya estás logueado, te manda adentro directo
+        if(localStorage.getItem('SGS_CURRENT_SESSION')) {
+            const s = JSON.parse(localStorage.getItem('SGS_CURRENT_SESSION'));
+            if(s.type === 'COMPANY_USER') window.location.href = 'dashboard.html';
+            if(s.type === 'SUPER_ADMIN') window.location.href = 'admin.html';
+        }
+
+        function doLogin() {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('pass').value;
+            
+            const btn = document.querySelector('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verificando...';
+            btn.disabled = true;
+            btn.style.opacity = "0.8";
+
+            setTimeout(() => {
+                const res = attemptLogin(e, p); // Función de db-manager.js
+
+                if(res.success) {
+                    if(res.type === 'SUPER_ADMIN') window.location.href = 'admin.html';
+                    else window.location.href = 'dashboard.html';
+                } else {
+                    const errDiv = document.getElementById('error');
+                    document.getElementById('error-text').innerText = res.msg;
+                    errDiv.style.display = 'block';
+                    
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    btn.style.opacity = "1";
+                }
+            }, 600);
+        }
+
+        document.getElementById('pass').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') doLogin();
+        });
+  
+   </script> 
+
+</body>
+
+
+
+</html>

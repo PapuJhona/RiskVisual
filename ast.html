@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión SGS - AST</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="ast-style.css">
+    <script src="db-manager.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body style="display: none;">
+
+    <header>
+        <div class="brand">
+            <a href="dashboard.html" class="back-link"><i class="fa-solid fa-house"></i> Dashboard</a>
+            <span class="divider">|</span>
+            <span style="font-weight:bold;">Análisis de Seguridad (AST)</span>
+        </div>
+        <div class="actions">
+            <div id="dynamic-actions">
+                <button id="btn-add" class="btn btn-highlight" onclick="openAddModal()">
+                    <i class="fa-solid fa-plus-circle"></i> <span id="btn-add-text">NUEVO</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="nav-bar">
+        <button id="btn-back" class="btn btn-back" onclick="navigateBack()" style="display:none;">
+            <i class="fa-solid fa-arrow-left"></i> Atrás
+        </button>
+        <div id="breadcrumb" class="breadcrumb">Vista General</div>
+    </div>
+
+    <main class="main-wrapper">
+        <div class="page-header">
+            <h2 id="page-title">Cargando...</h2>
+            <p id="page-subtitle">...</p>
+        </div>
+
+        <div id="main-area" class="content-grid fade-in"></div>
+    </main>
+
+    <footer class="summary-footer">
+        <div class="summary-card">
+            <div class="icon-circle"><i class="fa-solid fa-industry"></i></div>
+            <div class="summary-info"><span id="count-processes">0</span><small>PROCESOS</small></div>
+        </div>
+        <div class="summary-card">
+            <div class="icon-circle"><i class="fa-solid fa-users-gear"></i></div>
+            <div class="summary-info"><span id="count-tasks">0</span><small>TAREAS</small></div>
+        </div>
+        <div class="summary-card warning">
+            <div class="icon-circle"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div class="summary-info"><span id="count-risks">0</span><small>RIESGOS</small></div>
+        </div>
+        <div class="summary-card success">
+            <div class="icon-circle"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="summary-info"><span id="count-controls">0</span><small>CONTROLES</small></div>
+        </div>
+    </footer>
+
+    <div id="appModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Título</h3>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div id="modal-body" class="modal-body"></div>
+            <div class="modal-footer">
+                <button onclick="closeModal()" class="btn btn-secondary">Cancelar</button>
+                <button onclick="saveData()" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="pdfModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header" style="background: #2c3e50;">
+                <h3><i class="fa-solid fa-file-pdf"></i> Generar Matriz AST</h3>
+                <span class="close" onclick="closePdfModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p style="color:#666; font-size:0.9rem; margin-bottom:15px;">Complete los datos para el encabezado del documento:</p>
+                
+                <div class="form-group">
+                    <label>Elaborado por (Responsable):</label>
+                    <input type="text" id="pdf-author" placeholder="Nombre del responsable">
+                </div>
+                <div class="form-group">
+                    <label>Cargo / Puesto:</label>
+                    <input type="text" id="pdf-role" placeholder="Ej: Supervisor SSOMA">
+                </div>
+                <div class="form-group">
+                    <label>Lugar / Área de Trabajo:</label>
+                    <input type="text" id="pdf-area" placeholder="Ej: Planta Concentradora">
+                </div>
+                <div class="form-group">
+                    <label>Fecha:</label>
+                    <input type="date" id="pdf-date">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closePdfModal()" class="btn btn-secondary">Cancelar</button>
+                <button onclick="generateMatrixPDF()" class="btn btn-primary" style="background:#e74c3c; border:none;">
+                    <i class="fa-solid fa-file-export"></i> Generar PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="ast-script.js"></script>
+
+    <script>
+        function verificarAcceso() {
+            // Ajusta esto si usas un sistema real de login, por ahora lo dejo simple
+            const session = JSON.parse(localStorage.getItem('SGS_CURRENT_SESSION'));
+            // Lógica simple: si hay sesión se muestra, sino redirige (puedes comentarlo si estás probando local)
+            if (!session || session.type !== 'COMPANY_USER') {
+                // window.location.replace('index.html'); 
+                document.body.style.display = 'flex'; // Forzamos mostrar para pruebas
+            } else {
+                document.body.style.display = 'flex'; 
+            }
+        }
+        document.addEventListener('DOMContentLoaded', verificarAcceso);
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) verificarAcceso();
+        });
+        document.getElementById('pdf-date').valueAsDate = new Date();
+    </script>
+</body>
+</html>

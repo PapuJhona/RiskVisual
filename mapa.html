@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Riesgos - Seguridad</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="db-manager.js"></script>
+    <link rel="stylesheet" href="style.css?v=23">
+</head>
+<body style="display: none;">
+
+    <header>
+        <div class="brand">
+            <a href="dashboard.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Menú</a>
+            <div class="header-title-block">
+                <div class="main-title">MAPA DE RIESGOS</div>
+                <div class="company-subtitle" id="dynamic-header-company">Cargando empresa...</div>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <label for="uploadPlan" class="btn btn-upload">
+                <i class="fa-solid fa-folder-open"></i> Subir Plano
+            </label>
+            <input type="file" id="uploadPlan" accept="image/*" hidden>
+            
+            <button onclick="downloadPDF()" class="btn btn-download">
+                <i class="fa-solid fa-file-pdf"></i> Guardar PDF
+            </button>
+        </div>
+    </header>
+
+    <div class="editor-container">
+        
+        <aside class="sidebar-left">
+            <div class="sidebar-header">
+                <h3>Símbolos ISO 7010</h3>
+                <p class="hint">
+                    <b>Arrastra</b> al plano.<br>
+                    <b>Rueda:</b> Tamaño.<br>
+                    <b>Shift+Rueda:</b> Rotar.<br>
+                    <b>Doble click:</b> Borrar.
+                </p>
+            </div>
+
+            <div class="category-header warning" onclick="toggleCategory(this)">
+                <span>⚠️ Advertencia</span><i class="fa-solid fa-chevron-down arrow"></i>
+            </div>
+            <div class="symbols-grid-wrapper">
+                <div class="symbols-grid" id="grid-warning">
+                    <script>
+                        for(let i=0; i<=22; i++) {
+                            document.write(`<img src="ADVERTENCIA/${i}.png" class="symbol-img" draggable="true" ondragstart="drag(event)" data-id="${i}" data-category="Advertencia" title="Símbolo ${i}">`);
+                        }
+                    </script>
+                </div>
+            </div>
+
+            <div class="category-header prohibition" onclick="toggleCategory(this)">
+                <span>🚫 Prohibición</span><i class="fa-solid fa-chevron-down arrow"></i>
+            </div>
+            <div class="symbols-grid-wrapper">
+                <div class="symbols-grid" id="grid-prohibition">
+                    <script>
+                        for(let i=23; i<=31; i++) {
+                            document.write(`<img src="PROHIBICION/${i}.png" class="symbol-img" draggable="true" ondragstart="drag(event)" data-id="${i}" data-category="Prohibición" title="Símbolo ${i}">`);
+                        }
+                    </script>
+                </div>
+            </div>
+
+            <div class="category-header mandatory" onclick="toggleCategory(this)">
+                <span>🔵 Obligación</span><i class="fa-solid fa-chevron-down arrow"></i>
+            </div>
+            <div class="symbols-grid-wrapper">
+                <div class="symbols-grid" id="grid-mandatory">
+                    <script>
+                        for(let i=32; i<=44; i++) {
+                            document.write(`<img src="OBLIGACION/${i}.png" class="symbol-img" draggable="true" ondragstart="drag(event)" data-id="${i}" data-category="Obligación" title="Símbolo ${i}">`);
+                        }
+                    </script>
+                </div>
+            </div>
+
+            <div class="category-header safe" onclick="toggleCategory(this)">
+                <span>🟩 Información</span><i class="fa-solid fa-chevron-down arrow"></i>
+            </div>
+            <div class="symbols-grid-wrapper">
+                <div class="symbols-grid" id="grid-info">
+                    <script>
+                        for(let i=45; i<=58; i++) {
+                            if (i === 46) continue; // Aquí nos saltamos la imagen borrada
+                            document.write(`<img src="INFORMACION/${i}.png" class="symbol-img" draggable="true" ondragstart="drag(event)" data-id="${i}" data-category="Información" title="Símbolo ${i}">`);
+                        }
+                    </script>
+                </div>
+            </div>
+        </aside>
+
+        <main class="workspace">
+            <div class="zoom-info">
+                <span><i class="fa-solid fa-computer-mouse"></i> Fondo+Rueda: Zoom</span>
+                <span><i class="fa-solid fa-arrows-up-down-left-right"></i> Icono+Rueda: Tamaño</span>
+            </div>
+            
+            <div id="printable-area">
+                <div class="print-upper-section">
+                    <div id="canvas-viewport">
+                        <div id="canvas-content" ondrop="drop(event)" ondragover="allowDrop(event)">
+                            <p id="placeholder-text">
+                                <i class="fa-solid fa-cloud-arrow-up"></i><br>Sube tu plano aquí
+                            </p>
+                            <img id="plan-image" src="" alt="">
+                        </div>
+                    </div>
+                    
+                    <div class="print-legend-box">
+                        <h4>LEYENDA DE RIESGOS</h4>
+                        <div id="print-legend-container" class="print-legend-container">
+                            <div class="empty-legend">Sin riesgos añadidos</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="title-block">
+                    <div class="tb-header">
+                        <div class="tb-label-main">RAZÓN SOCIAL / EMPRESA:</div>
+                        <input type="text" class="tb-input-main" placeholder="ESCRIBE AQUÍ...">
+                    </div>
+                    <div class="tb-grid">
+                        <div class="tb-cell"><span class="tb-label">ELABORADO POR:</span><input type="text" class="tb-input"></div>
+                        <div class="tb-cell"><span class="tb-label">REVISADO POR:</span><input type="text" class="tb-input"></div>
+                        <div class="tb-cell"><span class="tb-label">APROBADO POR:</span><input type="text" class="tb-input"></div>
+                        <div class="tb-cell"><span class="tb-label">FECHA:</span><input type="date" class="tb-input"></div>
+                        <div class="tb-cell span-2"><span class="tb-label">SEDE / ÁREA / LUGAR:</span><input type="text" class="tb-input"></div>
+                        <div class="tb-cell span-2"><span class="tb-label">VERSIÓN / CÓDIGO DOCUMENTO:</span><input type="text" class="tb-input"></div>
+                    </div>
+                </div>
+            </div> 
+        </main>
+        
+    </div>
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="script.js?v=23"></script>
+    
+    <script>
+    function verificarAccesoYCargarNombre() {
+        const session = JSON.parse(localStorage.getItem('SGS_CURRENT_SESSION'));
+        if (!session || session.type !== 'COMPANY_USER') {
+            window.location.replace('index.html'); return;
+        }
+        const branding = getCompanyBranding();
+        const companyNameElement = document.getElementById('dynamic-header-company');
+        if (companyNameElement) {
+            companyNameElement.textContent = (branding && branding.name) ? branding.name : "Mi Empresa"; 
+        }
+        document.body.style.display = 'block';
+    }
+    document.addEventListener('DOMContentLoaded', verificarAccesoYCargarNombre);
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+            verificarAccesoYCargarNombre();
+        }
+    });
+    verificarAccesoYCargarNombre();
+    </script>
+</body>
+</html>

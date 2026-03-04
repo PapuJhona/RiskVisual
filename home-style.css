@@ -1,0 +1,209 @@
+/* RESET Y VARIABLES */
+:root {
+    --corporate-blue: #002060;
+    --corporate-dark: #001540;
+    --white: #ffffff;
+    --accent: #00a8ff;
+    --text-grey: #e0e0e0;
+}
+
+html, body {
+    height: 100%;
+    margin: 0; padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--corporate-blue);
+    color: var(--white);
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden; /* Evita scroll horizontal */
+}
+
+/* --- HEADER MODERNO (ESTILO CRISTAL) --- */
+.dashboard-header {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 80px;
+    padding: 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+    z-index: 100;
+    /* Degradado suave para que se lea bien sobre el fondo */
+    background: linear-gradient(to bottom, rgba(0, 21, 64, 0.9), rgba(0, 21, 64, 0));
+}
+
+/* Usuario (Izquierda) */
+.user-container { display: flex; align-items: center; gap: 15px; }
+.avatar-circle {
+    width: 45px; height: 45px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex; justify-content: center; align-items: center;
+    color: #00d2d3; font-size: 1.2rem;
+    box-shadow: 0 0 15px rgba(0, 210, 211, 0.2);
+}
+.user-info { display: flex; flex-direction: column; }
+.u-label { color: rgba(255,255,255,0.6); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+.u-email { color: white; font-weight: 600; font-size: 1rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+.u-email small { background: #e67e22; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 8px; vertical-align: middle; text-transform: uppercase; }
+
+/* BotÃƒÂ³n Salir (Derecha) */
+.btn-logout {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255,255,255,0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 10px 24px; border-radius: 30px;
+    cursor: pointer; font-family: inherit; font-weight: 600; font-size: 0.9rem;
+    display: flex; align-items: center; gap: 10px;
+    transition: all 0.3s ease; backdrop-filter: blur(5px);
+}
+.btn-logout:hover {
+    background: rgba(231, 76, 60, 0.9); border-color: #c0392b; color: white;
+    transform: translateY(-2px); box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+}
+
+/* --- CONTENEDOR PRINCIPAL --- */
+.hero-container {
+    flex: 1; /* Ocupa todo el espacio vertical */
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Centra todo verticalmente */
+    background: radial-gradient(circle at center, #00256e 0%, #001540 100%);
+    padding: 100px 20px 40px 20px; /* Padding arriba para no chocar con header */
+    position: relative;
+}
+/* PatrÃƒÂ³n de puntitos de fondo */
+.hero-container::before {
+    content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 30px 30px; pointer-events: none;
+}
+
+.content-wrapper {
+    width: 100%; max-width: 1000px;
+    display: flex; flex-direction: column; align-items: center;
+    animation: fadeIn 1s ease-out; z-index: 2;
+}
+
+/* --- MARCA DINÃƒÂMICA (EL ÃƒÂREA QUE QUERÃƒÂAS ARREGLAR) --- */
+.logo-area {
+    min-height: 200px; 
+    width: 100%;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    margin-bottom: 50px; 
+    text-align: center;
+}
+
+/* ESTILO A: LOGO (Suavizado y Centrado) */
+.corporate-logo-img {
+    max-height: 130px;
+    max-width: 85%;
+    object-fit: contain;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 25px 40px; /* Aire interno */
+    
+    /* AQUÃƒÂ ESTÃƒÂ LA MAGIA DE LOS BORDES SUAVES */
+    border-radius: 40px; 
+    
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    animation: zoomIn 0.8s ease-out;
+}
+
+/* ESTILO B: TEXTO CORPORATIVO (Centrado y Espaciado) */
+.corporate-text-box {
+    width: 100%;
+    display: flex; flex-direction: column; align-items: center;
+}
+.corp-title {
+    font-size: 3.2rem; font-weight: 800; color: white;
+    text-transform: uppercase; letter-spacing: -1px; line-height: 1.1;
+    text-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    
+    /* Esto fuerza el centrado */
+    margin: 0 auto 20px auto; 
+    text-align: center;
+}
+.corp-line {
+    width: 80px; height: 6px; background: #00d2d3;
+    margin-bottom: 20px; border-radius: 3px;
+}
+.corp-subtitle {
+    font-size: 0.9rem; letter-spacing: 4px; font-weight: 300;
+    color: rgba(255,255,255,0.8); text-transform: uppercase; text-align: center;
+}
+
+/* --- TARJETAS --- */
+.cards-container {
+    display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; width: 100%;
+}
+.nav-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px; padding: 40px 30px;
+    width: 280px; flex: 1 1 250px; max-width: 350px;
+    text-decoration: none; color: var(--white);
+    display: flex; flex-direction: column; align-items: center;
+    transition: 0.3s;
+}
+.nav-card:hover {
+    transform: translateY(-10px); background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-color: var(--accent);
+}
+.icon-box { font-size: 2.5rem; margin-bottom: 20px; color: var(--accent); }
+.nav-card h2 { margin: 10px 0; font-size: 1.5rem; }
+.nav-card p { font-size: 0.95rem; color: var(--text-grey); line-height: 1.6; margin-bottom: 25px; text-align: center; }
+.btn-link { margin-top: auto; font-weight: bold; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; color: var(--accent); }
+
+/* --- FOOTER --- */
+footer {
+    text-align: center; padding: 20px; font-size: 0.8rem;
+    color: rgba(255,255,255,0.3); background: var(--corporate-dark);
+    flex-shrink: 0;
+}
+
+/* ANIMACIONES */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .corp-title { font-size: 2rem; }
+    .dashboard-header { padding: 0 20px; height: 70px; }
+    .u-label, .u-email small { display: none; } 
+    .btn-logout span { display: none; } 
+    .btn-logout { padding: 10px; border-radius: 50%; }
+}
+
+/* --- VERSIÃƒâ€œN MÃƒâ€œVIL (DASHBOARD) --- */
+@media (max-width: 768px) {
+    /* Header */
+    .dashboard-header { 
+        padding: 15px; 
+        height: auto; 
+        flex-direction: column; 
+        gap: 15px; 
+        background: rgba(0, 21, 64, 0.95); /* Fondo mÃƒÂ¡s sÃƒÂ³lido para leer mejor */
+    }
+    
+    .user-container { width: 100%; justify-content: center; }
+    .btn-logout { width: 100%; justify-content: center; }
+    
+    /* Contenido Central */
+    .hero-container { padding-top: 140px; align-items: flex-start; } /* MÃƒÂ¡s espacio arriba por el header doble */
+    
+    /* Marca */
+    .corp-title { font-size: 1.8rem; }
+    .corporate-logo-img { max-height: 100px; padding: 15px; }
+    
+    /* Tarjetas de NavegaciÃƒÂ³n */
+    .cards-container { flex-direction: column; align-items: center; }
+    .nav-card { width: 100%; max-width: 100%; padding: 30px 20px; }
+}

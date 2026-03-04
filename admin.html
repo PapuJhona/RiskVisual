@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Super Admin</title>
+    <script src="db-manager.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f4f4; }
+        
+        /* --- PANTALLA DE LOGIN SUPER ADMIN (Overlay) --- */
+        #admin-login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #001540; z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            flex-direction: column; color: white;
+        }
+        .login-box {
+            background: white; color: #333; padding: 30px;
+            border-radius: 8px; text-align: center; width: 300px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .login-box input { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
+        .login-box button { width: 100%; padding: 10px; background: #002060; color: white; border: none; cursor: pointer; font-weight: bold; }
+        
+        /* --- PANEL PRINCIPAL --- */
+        #admin-panel { display: none; padding: 20px; }
+        
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { border-bottom: 2px solid #002060; padding-bottom: 10px; color: #002060; }
+        .section { margin-bottom: 30px; padding: 20px; background: #f8f9fa; border-radius: 5px; border: 1px solid #e9ecef; }
+        
+        .panel-input { padding: 8px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-action { padding: 8px 15px; cursor: pointer; background: #27ae60; color: white; border: none; border-radius: 4px; }
+        .btn-del { background: #c0392b; color: white; border: none; padding: 4px 8px; cursor: pointer; border-radius: 3px; }
+        
+        /* Botones de Backup */
+        .btn-backup { padding: 10px 20px; border-radius: 5px; text-decoration: none; cursor: pointer; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; border:none; }
+        .btn-download { background: #2980b9; color: white; }
+        .btn-restore { background: #e67e22; color: white; }
+        
+        ul { list-style: none; padding: 0; }
+        li { background: white; border-bottom: 1px solid #eee; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .user-tag { font-size: 0.85rem; background: #eee; padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
+        
+        /* --- VERSIÓN MÓVIL (ADMIN) --- */
+@media (max-width: 600px) {
+    /* Login */
+    .login-box { width: 90%; padding: 20px; }
+    
+    /* Panel */
+    .container { padding: 15px; }
+    .section h3 { font-size: 1.1rem; }
+    
+    /* Formulario crear empresa */
+    .section div[style*="display:flex"] { flex-direction: column; }
+    input.panel-input { margin-right: 0; margin-bottom: 10px; width: 100%; }
+    
+    /* Lista de usuarios */
+    li { flex-direction: column; align-items: flex-start; gap: 10px; }
+    li div { width: 100%; display: flex; justify-content: space-between; }
+    
+    /* Botones Backup */
+    .btn-backup { width: 100%; justify-content: center; }
+}
+        
+    </style>
+</head>
+<body>
+
+    <div id="admin-login-overlay">
+        <div class="login-box">
+            <h2><i class="fa-solid fa-user-shield"></i> Super Admin</h2>
+            <p>Ingresa la credencial maestra</p>
+            <input type="password" id="master-pass" placeholder="Contraseña">
+            <button onclick="checkMasterPass()">DESBLOQUEAR</button>
+            <p id="login-msg" style="color:red; display:none; margin-top:10px; font-size:0.9rem;"></p>
+            <a href="index.html" style="display:block; margin-top:15px; color:#666; font-size:0.8rem;">Volver al inicio</a>
+        </div>
+    </div>
+
+    <div id="admin-panel">
+    
+    <input type="file" id="update-logo-input" hidden accept="image/*">
+    <input type="file" id="import-db-input" hidden accept=".json" onchange="importDB(this)">
+
+        <div class="container">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h1>Panel de Control Maestro</h1>
+                <button onclick="logout()" style="background:#333; color:white; border:none; padding:10px 20px; cursor:pointer;">Cerrar Sesión</button>
+            </div>
+
+            <div class="section">
+                <h3>🏢 1. Crear Nueva Empresa</h3>
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <input type="text" id="new-comp-name" class="panel-input" placeholder="Nombre (ej: Oxford Group)" style="flex:1">
+                    <input type="text" id="new-comp-id" class="panel-input" placeholder="ID Único (ej: oxford)" style="flex:1">
+                </div>
+                
+                <div style="background: white; padding: 10px; border: 1px dashed #ccc; border-radius: 5px; margin-bottom: 15px;">
+                    <label style="font-weight:bold; font-size:0.9rem;">Subir Logo (Opcional):</label><br>
+                    <input type="file" id="new-comp-logo" accept="image/*" style="margin-top:5px;">
+                    <p style="color:#e67e22; font-size:0.8rem; margin:5px 0 0 0;">
+                        ⚠️ Importante: Usa imágenes pequeñas (máx 150KB) y preferiblemente PNG transparente.
+                    </p>
+                </div>
+
+                <button class="btn-action" onclick="createCompany()">Crear Empresa</button>
+            </div>
+
+            <div class="section">
+                <h3>👥 2. Gestión de Empresas y Usuarios</h3>
+                <div id="company-list">Cargando...</div>
+            </div>
+
+            <div class="section" style="border-left: 5px solid #8e44ad;">
+                <h3>💾 3. Migración de Datos (Backup)</h3>
+                <p style="font-size:0.9rem; color:#666;">Usa esto para mover toda la información de esta computadora a otra (o al celular).</p>
+                
+                <div style="display:flex; gap:15px; flex-wrap: wrap;">
+                    <button class="btn-backup btn-download" onclick="exportDB()">
+                        <i class="fa-solid fa-download"></i> Descargar Copia de Seguridad
+                    </button>
+
+                    <button class="btn-backup btn-restore" onclick="document.getElementById('import-db-input').click()">
+                        <i class="fa-solid fa-upload"></i> Restaurar desde Archivo
+                    </button>
+                </div>
+                <p style="color:red; font-size:0.8rem; margin-top:10px;">
+                    ⚠️ <b>Cuidado al Restaurar:</b> Esto borrará cualquier dato que tengas en este dispositivo y lo reemplazará con el del archivo.
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- LÓGICA DE ACCESO ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const session = JSON.parse(localStorage.getItem('SGS_CURRENT_SESSION'));
+            if (session && session.type === 'SUPER_ADMIN') {
+                showPanel();
+            }
+        });
+
+        function checkMasterPass() {
+            const passInput = document.getElementById('master-pass').value;
+            const db = getMasterDB();
+            if (passInput === db.superAdmin.pass) {
+                const session = { type: 'SUPER_ADMIN' };
+                localStorage.setItem('SGS_CURRENT_SESSION', JSON.stringify(session));
+                showPanel();
+            } else {
+                const msg = document.getElementById('login-msg');
+                msg.innerText = "Contraseña incorrecta";
+                msg.style.display = "block";
+            }
+        }
+
+        function showPanel() {
+            document.getElementById('admin-login-overlay').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'block';
+            render();
+        }
+
+        // --- LÓGICA DE EXPORTACIÓN / IMPORTACIÓN (NUEVO) ---
+        
+        function exportDB() {
+            const db = localStorage.getItem('SGS_MASTER_DB');
+            if(!db) return alert("No hay base de datos para exportar.");
+
+            const blob = new Blob([db], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            // Nombre del archivo con fecha
+            const date = new Date().toISOString().slice(0,10);
+            a.download = `SGS_BACKUP_${date}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function importDB(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            if (!confirm("⚠️ ¿ESTÁS SEGURO?\n\nSe borrarán TODOS los datos actuales de este dispositivo y se reemplazarán por los del archivo.\n\nEsta acción no se puede deshacer.")) {
+                input.value = ''; 
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const json = JSON.parse(e.target.result);
+                    // Verificar estructura básica para ver si es un archivo válido
+                    if(!json.companies || !json.superAdmin) {
+                        throw new Error("Formato de archivo inválido");
+                    }
+                    
+                    // Guardar en LocalStorage
+                    localStorage.setItem('SGS_MASTER_DB', JSON.stringify(json));
+                    alert("¡Restauración exitosa! La página se recargará.");
+                    location.reload();
+                } catch (err) {
+                    alert("Error: El archivo no es válido o está dañado.");
+                    console.error(err);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // --- LÓGICA EXISTENTE (EMPRESAS) ---
+
+        function createCompany() {
+            const name = document.getElementById('new-comp-name').value;
+            const id = document.getElementById('new-comp-id').value.toLowerCase().trim();
+            const fileInput = document.getElementById('new-comp-logo');
+            const db = getMasterDB();
+
+            if(!name || !id) return alert('Por favor completa nombre e ID');
+            if(db.companies[id]) return alert('¡Error! Ese ID de empresa ya existe.');
+
+            const saveToDB = (logoData = null) => {
+                db.companies[id] = { 
+                    name: name, 
+                    logo: logoData, 
+                    users: [], 
+                    data: {} 
+                };
+                saveMasterDB(db);
+                document.getElementById('new-comp-name').value = '';
+                document.getElementById('new-comp-id').value = '';
+                fileInput.value = '';
+                render();
+                alert("¡Empresa creada exitosamente!");
+            };
+
+            if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                if (file.size > 150000) {
+                    return alert("El logo es muy pesado. Por favor usa una imagen menor a 150KB.");
+                }
+                const reader = new FileReader();
+                reader.onload = function(e) { saveToDB(e.target.result); };
+                reader.readAsDataURL(file);
+            } else {
+                saveToDB(null);
+            }
+        }
+
+        function addUser(compId) {
+            const prefix = prompt("Ingresa el nombre de usuario (ej: juan):");
+            if(!prefix) return;
+            const pass = prompt("Crea una contraseña para este usuario:");
+            if(!pass) return;
+            const isEditor = confirm("¿Este usuario puede EDITAR?\nAceptar = SÍ (Editor)\nCancelar = NO (Solo Ver)");
+            const role = isEditor ? 'editor' : 'viewer';
+            const email = `${prefix}@${compId}.com`; 
+            const db = getMasterDB();
+            if(db.companies[compId].users.find(u => u.email === email)){
+                return alert('Este usuario ya existe en esta empresa');
+            }
+            db.companies[compId].users.push({ email, pass, role });
+            saveMasterDB(db);
+            render();
+            alert(`Usuario Creado:\nCorreo: ${email}\nPass: ${pass}`);
+        }
+
+        function deleteUser(compId, email) {
+            if(!confirm('¿Estás seguro de eliminar a ' + email + '?')) return;
+            const db = getMasterDB();
+            db.companies[compId].users = db.companies[compId].users.filter(u => u.email !== email);
+            saveMasterDB(db);
+            render();
+        }
+
+        function deleteCompany(compId) {
+             if(prompt(`ADVERTENCIA: Esto borrará TODOS los mapas y ASTs de ${compId}.\nEscribe "borrar" para confirmar:`) === 'borrar') {
+                const db = getMasterDB();
+                delete db.companies[compId];
+                saveMasterDB(db);
+                render();
+             }
+        }
+
+        // Listener para actualizar logo
+        let editingCompanyId = null;
+        document.addEventListener('DOMContentLoaded', () => {
+            const updateInput = document.getElementById('update-logo-input');
+            if(updateInput) {
+                updateInput.addEventListener('change', function() {
+                    if (this.files && this.files[0] && editingCompanyId) {
+                        const file = this.files[0];
+                        if (file.size > 150000) {
+                            alert("Imagen muy pesada. Máximo 150KB.");
+                            this.value = ''; 
+                            return;
+                        }
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const db = getMasterDB();
+                            db.companies[editingCompanyId].logo = e.target.result;
+                            saveMasterDB(db);
+                            render(); 
+                            alert("Logo actualizado correctamente.");
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                    this.value = ''; 
+                });
+            }
+        });
+
+        function triggerUpdateLogo(compId) {
+            editingCompanyId = compId;
+            document.getElementById('update-logo-input').click();
+        }
+
+        function render() {
+            const list = document.getElementById('company-list');
+            const db = getMasterDB();
+            list.innerHTML = '';
+            const ids = Object.keys(db.companies);
+            if(ids.length === 0) {
+                list.innerHTML = '<p style="color:#777; font-style:italic;">No hay empresas registradas.</p>';
+                return;
+            }
+            ids.forEach(id => {
+                const comp = db.companies[id];
+                const hasLogo = comp.logo ? '<span style="color:green; font-size:0.8rem;">(Con Logo)</span>' : '<span style="color:#999; font-size:0.8rem;">(Sin Logo)</span>';
+                let usersHtml = '<div style="margin-top:10px; padding-left:15px; border-left:3px solid #ddd;">';
+                if(comp.users.length === 0) {
+                    usersHtml += '<small style="color:#999">Sin usuarios creados</small>';
+                } else {
+                    comp.users.forEach(u => {
+                        usersHtml += `
+                            <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.9rem;">
+                                <span>👤 ${u.email} <span class="user-tag">${u.role}</span> <span style="color:#aaa; font-size:0.8rem">(Pass: ${u.pass})</span></span>
+                                <button class="btn-del" onclick="deleteUser('${id}', '${u.email}')">X</button>
+                            </div>
+                        `;
+                    });
+                }
+                usersHtml += '</div>';
+                const div = document.createElement('div');
+                div.style.background = 'white';
+                div.style.border = '1px solid #ddd';
+                div.style.padding = '15px';
+                div.style.marginBottom = '15px';
+                div.style.borderRadius = '5px';
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:10px;">
+                        <div>
+                            <strong style="font-size:1.1rem; color:#333;">${comp.name}</strong>
+                            ${hasLogo}
+                        </div>
+                        <div>
+                            <button onclick="triggerUpdateLogo('${id}')" style="background:#f39c12; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer; margin-right:5px;">📷 Logo</button>
+                            <small style="background:#e1ecf4; padding:3px 8px; border-radius:10px; color:#2980b9; font-weight:bold;">ID: ${id}</small>
+                            <button class="btn-del" style="margin-left:5px; background:#333;" onclick="deleteCompany('${id}')"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <div style="margin-top:10px;">
+                        <button onclick="addUser('${id}')" style="background:#3498db; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer; font-size:0.8rem;">+ Nuevo Usuario</button>
+                    </div>
+                    ${usersHtml}
+                `;
+                list.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>
