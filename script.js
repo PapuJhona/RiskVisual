@@ -15,18 +15,18 @@ let pointX = 0, pointY = 0, startX = 0, startY = 0;
 // Estado de la leyenda usando Sets
 const activeLegendItems = {
     'Advertencia': new Set(),
-    'ProhibiciÃ³n': new Set(),
-    'ObligaciÃ³n': new Set(),
-    'InformaciÃ³n': new Set()
+    'Prohibición': new Set(),
+    'Obligación': new Set(),
+    'Información': new Set()
 };
 
-// HELPER: Convertir categorÃ­a a nombre de carpeta para evitar errores de ruta
+// HELPER: Convertir categorí­a a nombre de carpeta para evitar errores de ruta
 function getFolderByCategory(category) {
     const map = {
         'Advertencia': 'ADVERTENCIA',
-        'ProhibiciÃ³n': 'PROHIBICION',
-        'ObligaciÃ³n': 'OBLIGACION',
-        'InformaciÃ³n': 'INFORMACION'
+        'Prohibición': 'PROHIBICION',
+        'Obligación': 'OBLIGACION',
+        'Información': 'INFORMACION'
     };
     return map[category] || 'OTROS';
 }
