@@ -4,8 +4,8 @@ let systemData = (companyData && companyData.astData) ? companyData.astData : []
 
 // Opciones guardadas en LocalStorage
 let optionsDB = JSON.parse(localStorage.getItem('sgsOptions')) || {
-    positions: ["Operario", "Supervisor", "TÃ©cnico", "Ayudante", "Conductor"],
-    ppes: ["Casco", "Lentes", "Zapatos", "Guantes", "Tapones", "Respirador", "ArnÃ©s", "Chaleco", "Ninguno"]
+    positions: ["Operario", "Supervisor", "Tecnico", "Ayudante", "Conductor"],
+    ppes: ["Casco", "Lentes", "Zapatos", "Guantes", "Tapones", "Respirador", "Arnes", "Chaleco", "Ninguno"]
 };
 
 // --- VARIABLES ESTADO ---
@@ -87,7 +87,7 @@ function renderView(pushToHistory = false) {
     if (currentLevel === 'processes') {
         pageTitle.style.display = 'block';
         pageTitle.innerText = 'Procesos de la Empresa';
-        document.getElementById('page-subtitle').innerText = 'GestiÃ³n macro de las Ã¡reas operativas.';
+        document.getElementById('page-subtitle').innerText = 'Gestion macro de las Areas operativas.';
         document.getElementById('btn-add-text').innerText = 'NUEVO PROCESO';
         document.getElementById('breadcrumb').innerText = 'Vista General';
         btnBack.style.display = 'none';
@@ -161,7 +161,7 @@ function renderView(pushToHistory = false) {
             </div>
         `;
         
-        document.getElementById('page-subtitle').innerText = 'GestiÃ³n de actividades operativas.';
+        document.getElementById('page-subtitle').innerText = 'Gestion de actividades operativas.';
         document.getElementById('btn-add-text').innerText = 'NUEVA TAREA';
         document.getElementById('breadcrumb').innerText = `${process.name} > Tareas`;
         btnBack.style.display = 'flex'; 
@@ -184,7 +184,7 @@ function renderView(pushToHistory = false) {
         
         pageTitle.style.display = 'block'; 
         pageTitle.innerText = `Panel de Riesgos`;
-        document.getElementById('page-subtitle').innerText = `EvaluaciÃ³n para: ${task.name}`;
+        document.getElementById('page-subtitle').innerText = `Evaluacion para: ${task.name}`;
         document.getElementById('btn-add-text').innerText = 'AGREGAR RIESGO';
         document.getElementById('breadcrumb').innerText = `${task.name} > Riesgos`;
         btnBack.style.display = 'flex';
@@ -199,10 +199,10 @@ function renderView(pushToHistory = false) {
 
         const infoCard = document.createElement('div'); infoCard.className = 'task-tech-card';
         let ppeHtml = (task.ppeList && task.ppeList.length > 0) ? task.ppeList.map(e=>`<span class="tag" style="border:1px solid #27ae60; color:#27ae60;">${e}</span>`).join(' ') : '<span style="color:#999">Ninguno</span>';
-        infoCard.innerHTML = `<div class="tech-header-row"><div class="tech-title-block"><h4>Ficha TÃ©cnica de Tarea</h4><h2 class="tech-task-name">${task.name}</h2></div><button onclick="openEditModal('task', ${task.id})" class="btn-icon btn-edit"><i class="fa-solid fa-pen"></i></button></div><div class="tech-grid"><div class="tech-item"><label>Tipo</label><span>${task.type}</span></div><div class="tech-item"><label>Puesto</label><span>${task.personnel}</span></div><div class="tech-item"><label>EPPs Requeridos</label><div style="display:flex; flex-wrap:wrap; gap:5px; margin-top:5px;">${ppeHtml}</div></div></div>`;
+        infoCard.innerHTML = `<div class="tech-header-row"><div class="tech-title-block"><h4>Ficha Tecnica de Tarea</h4><h2 class="tech-task-name">${task.name}</h2></div><button onclick="openEditModal('task', ${task.id})" class="btn-icon btn-edit"><i class="fa-solid fa-pen"></i></button></div><div class="tech-grid"><div class="tech-item"><label>Tipo</label><span>${task.type}</span></div><div class="tech-item"><label>Puesto</label><span>${task.personnel}</span></div><div class="tech-item"><label>EPPs Requeridos</label><div style="display:flex; flex-wrap:wrap; gap:5px; margin-top:5px;">${ppeHtml}</div></div></div>`;
         leftCol.appendChild(infoCard);
 
-        const separator = document.createElement('div'); separator.className = 'section-separator'; separator.innerHTML = '<i class="fa-solid fa-list-ul"></i> IdentificaciÃ³n de Riesgos';
+        const separator = document.createElement('div'); separator.className = 'section-separator'; separator.innerHTML = '<i class="fa-solid fa-list-ul"></i> Identificacion de Riesgos';
         leftCol.appendChild(separator);
 
         if (task.risks.length === 0) {
@@ -259,7 +259,7 @@ function renderView(pushToHistory = false) {
 
         pageTitle.style.display = 'block';
         pageTitle.innerText = `Controles para: ${risk.name}`;
-        document.getElementById('page-subtitle').innerText = 'GestiÃ³n de medidas preventivas, detectivas y correctivas.';
+        document.getElementById('page-subtitle').innerText = 'Gestion de medidas preventivas, detectivas y correctivas.';
         document.getElementById('btn-add-text').innerText = 'AGREGAR CONTROL';
         document.getElementById('breadcrumb').innerText = `Riesgos > Controles`;
         btnBack.style.display = 'flex';
@@ -291,7 +291,7 @@ function renderRiskCharts(risks) {
 
     const catsFreq = ['Improbable', 'Ocasional', 'Probable', 'Posible'];
     const catsSev = ['Bajo', 'Medio', 'Alto', 'Muy Alto'];
-    const catsTol = ['BAJO', 'MEDIO', 'ALTO', 'CRÃTICO'];
+    const catsTol = ['BAJO', 'MEDIO', 'ALTO', 'CRITICO'];
     const unifiedColors = ['#2ecc71', '#f1c40f', '#e67e22', '#e74c3c']; 
 
     const getChartData = (categories, riskProperty, isTolerance = false) => {
@@ -384,7 +384,7 @@ function renderRiskCharts(risks) {
 function triggerMapUpload() {
     const input = document.getElementById('upload-map-input');
     if(input) input.click();
-    else alert("Error: No se encontrÃ³ el input de archivo. Recarga la pÃ¡gina.");
+    else alert("Error: No se encontro el input de archivo. Recarga la pagina.");
 }
 
 function handleMapUpload(input) {
@@ -415,7 +415,7 @@ function handleMapUpload(input) {
 }
 
 function deleteProcessMap() {
-    if (confirm("Â¿EstÃ¡s seguro de eliminar el mapa de este proceso?")) {
+    if (confirm("Estas seguro de eliminar el mapa de este proceso?")) {
         const process = systemData.find(p => p.id === currentProcessId);
         if (process) {
             delete process.processMap;
@@ -474,13 +474,13 @@ function generateMatrixPDF() {
 
     doc.setDrawColor(0, 32, 96); doc.setLineWidth(0.5); doc.roundedRect(margin, margin, contentWidth, pageHeight - (margin * 2), 3, 3, 'S');
     doc.setFont("helvetica", "bold"); doc.setFontSize(22); doc.setTextColor(0, 32, 96); doc.text(companyName.toUpperCase(), pageWidth / 2, 22, { align: 'center' });
-    doc.setFontSize(14); doc.setTextColor(0); doc.text("ANÃLISIS DE SEGURIDAD EN EL TRABAJO (AST)", pageWidth / 2, 30, { align: 'center' });
+    doc.setFontSize(14); doc.setTextColor(0); doc.text("ANALISIS DE SEGURIDAD EN EL TRABAJO (AST)", pageWidth / 2, 30, { align: 'center' });
 
     const infoBoxY = 38; const infoBoxH = 18;
     doc.setFillColor(240, 245, 255); doc.setDrawColor(0, 32, 96); doc.setLineWidth(0.2); doc.roundedRect(margin + 2, infoBoxY, contentWidth - 4, infoBoxH, 2, 2, 'FD');
     doc.setFontSize(10); doc.setTextColor(0);
     doc.setFont("helvetica", "bold"); doc.text("PROCESO:", margin+5, infoBoxY+6); doc.setFont("helvetica", "normal"); doc.text(process.name, margin+28, infoBoxY+6);
-    doc.setFont("helvetica", "bold"); doc.text("ÃREA:", margin+120, infoBoxY+6); doc.setFont("helvetica", "normal"); doc.text(area, margin+135, infoBoxY+6);
+    doc.setFont("helvetica", "bold"); doc.text("AREA:", margin+120, infoBoxY+6); doc.setFont("helvetica", "normal"); doc.text(area, margin+135, infoBoxY+6);
     doc.setFont("helvetica", "bold"); doc.text("FECHA:", margin+220, infoBoxY+6); doc.setFont("helvetica", "normal"); doc.text(date, margin+235, infoBoxY+6);
     doc.setFont("helvetica", "bold"); doc.text("RESPONSABLE:", margin+5, infoBoxY+12); doc.setFont("helvetica", "normal"); doc.text(`${author} (${role})`, margin+35, infoBoxY+12);
 
@@ -575,10 +575,10 @@ function saveData() {
     updateSummary(); renderView(); closeModal();
 }
 
-function deleteProcess(id){if(confirm('Â¿Borrar?')){systemData=systemData.filter(p=>p.id!==id);updateSummary();renderView();}}
-function deleteTask(id){if(confirm('Â¿Borrar?')){const p=systemData.find(x=>x.id===currentProcessId);p.tasks=p.tasks.filter(t=>t.id!==id);updateSummary();renderView();}}
-function deleteRisk(idx){if(confirm('Â¿Borrar?')){const t=systemData.find(x=>x.id===currentProcessId).tasks.find(x=>x.id===currentTaskId);t.risks.splice(idx,1);updateSummary();renderView();}}
-function deleteControl(idx){if(confirm('Â¿Borrar control?')){const t=systemData.find(x=>x.id===currentProcessId).tasks.find(x=>x.id===currentTaskId);t.risks[currentRiskIndex].controls.splice(idx,1);updateSummary();renderView();}}
+function deleteProcess(id){if(confirm('¿Borrar?')){systemData=systemData.filter(p=>p.id!==id);updateSummary();renderView();}}
+function deleteTask(id){if(confirm('¿Borrar?')){const p=systemData.find(x=>x.id===currentProcessId);p.tasks=p.tasks.filter(t=>t.id!==id);updateSummary();renderView();}}
+function deleteRisk(idx){if(confirm('¿Borrar?')){const t=systemData.find(x=>x.id===currentProcessId).tasks.find(x=>x.id===currentTaskId);t.risks.splice(idx,1);updateSummary();renderView();}}
+function deleteControl(idx){if(confirm('¿Borrar control?')){const t=systemData.find(x=>x.id===currentProcessId).tasks.find(x=>x.id===currentTaskId);t.risks[currentRiskIndex].controls.splice(idx,1);updateSummary();renderView();}}
 
 function updateSummary(){
     if(typeof saveCompanyData === 'function') saveCompanyData('astData', systemData);
@@ -596,7 +596,7 @@ function goHome() { window.location.href = 'dashboard.html'; }
 
 function getRiskColorClass(val) { if(val === 'Muy Alto' || val === 'Altamente Posible') return 'bg-red'; if(val === 'Alto' || val === 'Posible') return 'bg-orange'; if(val === 'Medio' || val === 'Ocasional') return 'bg-yellow'; return 'bg-green'; }
 function calculateControlQuality(c) { let score = 0; if(c.type === 'Preventivo') score += 3; else if(c.type === 'Detectivo') score += 2; else score += 1; if(c.doc === 'Documentado') score += 2; else if(c.doc === 'Parcial') score += 1; if(c.evidence === 'Si') score += 2; if(c.freqDefined === 'Si') score += 1; return score; }
-function getBadge(s) { if (s >= 7) return { text: 'Excelente', cls: 'q-excellent' }; if (s >= 5) return { text: 'Bueno', cls: 'q-good' }; if (s >= 3) return { text: 'Regular', cls: 'q-medium' }; return { text: 'DÃ©bil', cls: 'q-bad' }; }
+function getBadge(s) { if (s >= 7) return { text: 'Excelente', cls: 'q-excellent' }; if (s >= 5) return { text: 'Bueno', cls: 'q-good' }; if (s >= 3) return { text: 'Regular', cls: 'q-medium' }; return { text: 'Debil', cls: 'q-bad' }; }
 function calculateTolerance(s, f) { let sVal = 1; if(s==='Medio') sVal=2; if(s==='Alto') sVal=3; if(s==='Muy Alto') sVal=4; let fVal = 1; if(f==='Ocasional') fVal=2; if(f==='Probable') fVal=3; if(f==='Posible') fVal=4; const score = sVal * fVal; if (score <= 4) return { text: "BAJO", color: [46, 204, 113], score: score, sVal: sVal, fVal: fVal }; if (score <= 8) return { text: "MEDIO", color: [241, 196, 15], score: score, sVal: sVal, fVal: fVal }; if (score <= 12) return { text: "ALTO", color: [230, 126, 34], score: score, sVal: sVal, fVal: fVal }; return { text: "CRÃTICO", color: [231, 76, 60], score: score, sVal: sVal, fVal: fVal }; }
 
 function saveOptions() { localStorage.setItem('sgsOptions', JSON.stringify(optionsDB)); }
